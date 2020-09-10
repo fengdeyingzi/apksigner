@@ -1,5 +1,6 @@
 
 import java.util.*;
+import com.android.apksigner.ApkSignerTool;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
@@ -169,9 +170,18 @@ public class MainWindow extends JFrame {
 		File file_out = new File(path_new);
 //		   file_out.createNewFile();
 		String cmd = "jarsigner -keystore " + key + " -storepass " + password + " -keypass " + password + " -signedjar "
-				+ path_new + " " + path + "" + " " + appkey;
+				+ path_new + " " + path + "" + " " + appkey+"\n";
+		//// apksigner sign --ks (签名地址) --ks-key-alias (别名) --out (签名后的apk地址) (待签名apk地址)
+		cmd = "sign --ks "+key+" --ks-pass pass:"+password+ " --ks-key-alias "+appkey+" --out "+path_new+" "+path+"";
 		System.out.println("" + cmd);
 		label_info.append(cmd + "\r\n");
+		try {
+			ApkSignerTool.main(cmd.split(" "));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*
 		Process process = Runtime.getRuntime().exec(cmd, null);
 		if (process.waitFor() != 0)
 			System.out.println("签名失败。。。");
@@ -186,6 +196,7 @@ public class MainWindow extends JFrame {
 			label_info.append(line + "\r\n");
 		}
 		input.close();
+		*/
 		// jarsigner -verbose -keystore /Users/mac/Downloads/xl.keystore -signedjar
 		// "/Users/mac/Downloads/app-release_legu.apk"
 		// "/Users/mac/Downloads/app-release_legu_sign.apk" appkey
