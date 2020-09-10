@@ -8,7 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.plaf.DimensionUIResource;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.xl.util.UIUtil;
 
 public class MainWindow extends JFrame {
 
@@ -24,15 +30,19 @@ public class MainWindow extends JFrame {
 		setTitle("apk签名 - 风的影子 制作");
 		setBounds(400, 400, 400, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+//		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		Box box_v = Box.createVerticalBox();
+//		panel.add(box_v);
 
+		Box box_file = Box.createHorizontalBox();
 		final JLabel label = new JLabel();
 		label.setText("文件：");
-		panel.add(label);
+		box_file.add(label);
 
 		textField_file = new JTextField();
 		textField_file.setColumns(20);
-		panel.add(textField_file);
+		textField_file.setMaximumSize(new Dimension(1090, 28));
+		box_file.add(textField_file);
 
 		final JButton button = new JButton("上传");
 		button.addActionListener(new ActionListener() {
@@ -49,10 +59,12 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
-		panel.add(button);
+		box_file.add(button);
+		box_v.add(box_file);
 		JLabel label_keypathJLabel = new JLabel("key路径");
 		textfield_keypathField = new JTextField();
 		textfield_keypathField.setColumns(20);
+		textfield_keypathField.setMaximumSize(new Dimension(1090, 28));
 		final JButton button_setkey = new JButton("设置");
 		button_setkey.addActionListener(new ActionListener() {
 
@@ -71,53 +83,66 @@ public class MainWindow extends JFrame {
 
 		JLabel lable_keynameJLabel = new JLabel("key名字");
 		textfield_keynameField = new JTextField();
+		textfield_keynameField.setMaximumSize(new Dimension(1090, 28));
 		textfield_keynameField.setColumns(20);
 
 		JLabel lable_passwordJLabel = new JLabel();
 		lable_passwordJLabel.setText("key密码");
 		textfield_passwordField = new JTextField();
+		textfield_passwordField.setMaximumSize(new Dimension(1090, 28));
 		textfield_passwordField.setColumns(20);
 
-		JPanel panel_0 = new JPanel();
+		Box panel_0 =  Box.createHorizontalBox();
 		panel_0.setPreferredSize(new Dimension(640, 30));
+		panel_0.setMaximumSize(new Dimension(1090, 30));
 		panel_0.add(label_keypathJLabel);
 		panel_0.add(textfield_keypathField);
 		panel_0.add(button_setkey);
 
-		JPanel panel_1 = new JPanel();
+		Box panel_1 = Box.createHorizontalBox();
 		panel_1.setPreferredSize(new Dimension(640, 30));
 		panel_1.add(lable_keynameJLabel);
 		panel_1.add(textfield_keynameField);
 
-		JPanel panel_2 = new JPanel();
+		Box panel_2 = Box.createHorizontalBox();
 		panel_2.setPreferredSize(new DimensionUIResource(640, 30));
 		panel_2.add(lable_passwordJLabel);
 		panel_2.add(textfield_passwordField);
 
-		JPanel panel_sign = new JPanel();
+		Box panel_sign = Box.createHorizontalBox();
 		JButton btn_sign = new JButton();
 		btn_sign.setText("签名");
+		btn_sign.setMaximumSize(new Dimension(1090, 30));
 		panel_sign.add(btn_sign);
 
 		JPanel panel_info = new JPanel();
+		
 		label_info = new JTextArea();
-		label_info.setEditable(false);
+		Box box_info = Box.createHorizontalBox();
+		JScrollPane jScrollPane = new JScrollPane(label_info);
+//		label_info.setEditable(false);
 		label_info.setText("输出信息:");
-		label_info.setMaximumSize(new Dimension(640, 480));
-		label_info.setPreferredSize(new Dimension(640, 60));
+		jScrollPane.setMaximumSize(new Dimension(1090, 480));
+		jScrollPane.setPreferredSize(new Dimension(1090, 60));
 
-		panel_info.add(label_info);
+		
 
-		panel.add(panel_0);
-		panel.add(panel_1);
-		panel.add(panel_2);
-		panel.add(panel_info);
-		panel.add(panel_sign);
+		box_info.add(jScrollPane);
+		
+
+		box_v.add(panel_0);
+		box_v.add(panel_1);
+		box_v.add(panel_2);
+//		box_v.add(panel_info);
+		box_v.add(box_info);
+		box_v.add(panel_sign);
+		
 
 		btn_sign.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				saveConfig();
 				// TODO Auto-generated method stub
 				try {
 					MainWindow.this.signApk(textField_file.getText(), textfield_keypathField.getText(),
@@ -129,9 +154,10 @@ public class MainWindow extends JFrame {
 		});
 
 //		add(panel, BorderLayout.NORTH);
-		setContentPane(panel);
+		setContentPane(box_v);
 
 		setVisible(true);
+		readConfig();
 	}
 
 	public void signApk(String path, String key, String appkey, String password)
@@ -165,9 +191,54 @@ public class MainWindow extends JFrame {
 		// "/Users/mac/Downloads/app-release_legu_sign.apk" appkey
 
 	}
+	
+	//读取配置文件
+	void readConfig(){
+		File file = new File("apkaigner_config.json");
+		String text=null;
+		try {
+			text = FileUtils.read(file, "UTF-8");
+			try{
+			JSONObject jsonObject = new JSONObject(text);
+			String apkfile = jsonObject.getString("apkfile");
+			String keyfile = jsonObject.getString("keyfile");
+			String keyname = jsonObject.getString("keyname");
+			textField_file.setText(apkfile);
+			textfield_keypathField.setText(keyfile);
+			textfield_keynameField.setText(keyname);
+		}
+		catch(JSONException e){
+			e.printStackTrace();
+		}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	//保存配置文件
+	void saveConfig(){
+		File file = new File("apkaigner_config.json");
+		String apkfile = textField_file.getText();
+		String keyfile = textfield_keypathField.getText();
+		String keyname = textfield_keynameField.getText();
+		try{
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("apkfile", apkfile);
+		jsonObject.put("keyfile", keyfile);
+		jsonObject.put("keyname", keyname);
+		FileUtils.writeText("apkaigner_config.json", jsonObject.toString(), "UTF-8");
+		}catch(JSONException e){
+			e.printStackTrace();
+		}
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		UIUtil.setWindowsStyle();
 		MainWindow test = new MainWindow();
 
 	}
