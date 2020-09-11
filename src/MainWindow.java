@@ -1,7 +1,14 @@
 
 import java.util.*;
+import java.util.List;
+
 import com.android.apksigner.ApkSignerTool;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,8 +35,8 @@ public class MainWindow extends JFrame {
 	private JFileChooser fileChooser = new JFileChooser();
 
 	public MainWindow() {
-		setTitle("apk签名 - 风的影子 制作");
-		setBounds(400, 400, 400, 400);
+		setTitle("apk签名 - 风的影子 制作  - https://github.com/fengdeyingzi/apksigner");
+		setBounds(400, 400, 450, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		Box box_v = Box.createVerticalBox();
@@ -122,7 +129,7 @@ public class MainWindow extends JFrame {
 		Box box_info = Box.createHorizontalBox();
 		JScrollPane jScrollPane = new JScrollPane(label_info);
 //		label_info.setEditable(false);
-		label_info.setText("输出信息:");
+		label_info.setText("");
 		jScrollPane.setMaximumSize(new Dimension(1090, 480));
 		jScrollPane.setPreferredSize(new Dimension(1090, 60));
 
@@ -159,7 +166,66 @@ public class MainWindow extends JFrame {
 
 		setVisible(true);
 		readConfig();
+		dragFile(textField_file, new OnDragFile() {
+			
+			@Override
+			public void onDragFile(List<File> list_file) {
+				textField_file.setText(list_file.get(0).getPath());
+			}
+		});
+		dragFile(textfield_keypathField, new OnDragFile() {
+			
+			@Override
+			public void onDragFile(List<File> list_file) {
+				textfield_keypathField.setText(list_file.get(0).getPath());
+			}
+		});
 	}
+	
+    public void dragFile(Component c, final OnDragFile onDragFile)
+    {
+       new DropTarget(c,DnDConstants.ACTION_COPY_OR_MOVE,new DropTargetAdapter()
+        {
+           @Override
+           public void drop(DropTargetDropEvent dtde)
+           {
+               try{
+
+                   if(dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+                    {
+                       dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                       List<File>list=(List<File>)(dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor));
+                       if(onDragFile!=null){
+                           onDragFile.onDragFile(list);
+                       }
+//                     String temp="";
+//                     for(File file:list)
+//                      {
+//                         temp+=file.getAbsolutePath()+";\n";
+//                         JOptionPane.showMessageDialog(null, temp);
+//                         dtde.dropComplete(true);
+//                         
+//                      }
+
+                    }
+
+                   else
+                    {
+
+                       dtde.rejectDrop();
+                    }
+
+               }catch(Exception e){e.printStackTrace();}
+
+           }
+
+        });
+
+    }
+
+ public interface OnDragFile{
+     public void onDragFile(List<File> list_file);
+ }
 
 	public void signApk(String path, String key, String appkey, String password)
 			throws IOException, InterruptedException {
