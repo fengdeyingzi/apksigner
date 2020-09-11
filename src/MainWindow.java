@@ -3,6 +3,8 @@ import java.util.*;
 import java.util.List;
 
 import com.android.apksigner.ApkSignerTool;
+import com.android.apksigner.ApkSignerTool2;
+
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
@@ -238,11 +240,12 @@ public class MainWindow extends JFrame {
 		String cmd = "jarsigner -keystore " + key + " -storepass " + password + " -keypass " + password + " -signedjar "
 				+ path_new + " " + path + "" + " " + appkey+"\n";
 		//// apksigner sign --ks (签名地址) --ks-key-alias (别名) --out (签名后的apk地址) (待签名apk地址)
-		cmd = "sign --ks "+key+" --ks-pass pass:"+password+ " --ks-key-alias "+appkey+" --out "+path_new+" "+path+"";
+		cmd = "--ks "+key+" --ks-pass pass:"+password+ " --ks-key-alias "+appkey+" --out "+path_new+" "+path+" "+"";
 		System.out.println("" + cmd);
 		label_info.append(cmd + "\r\n");
 		try {
-			ApkSignerTool.main(cmd.split(" "));
+			String text = ApkSignerTool2.sign(cmd.split(" "));
+			label_info.append(text+"\r\n");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
