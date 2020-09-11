@@ -8,7 +8,7 @@
 - 签名之后apk在原apk目录下
 - 配置文件记录，下次启动不必重复填入信息
 
-![image-20200911084256602](img/image-20200911084256602.png)
+![image-20200911084256602](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9fdaf31b9cd74a4e814df182f6b17cf2~tplv-k3u1fbpfcp-zoom-1.image)
 
 
 
